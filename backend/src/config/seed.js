@@ -26,6 +26,22 @@ const seedDatabase = async () => {
       console.log('ℹ️ Admin user already exists');
     }
 
+    // 1b. Seed Demo Devotee User
+    const userEmail = 'user@pujaconnect.com';
+    let demoUser = await User.findOne({ email: userEmail });
+    if (!demoUser) {
+      demoUser = await User.create({
+        name: 'Rahul Sharma',
+        email: userEmail,
+        password: 'User@123',
+        phone: '9822334455',
+        role: 'user',
+      });
+      console.log('✅ Demo user created: user@pujaconnect.com / User@123');
+    } else {
+      console.log('ℹ️ Demo user already exists');
+    }
+
     // 2. Seed Master Pujas
     const pujasData = [
       {
