@@ -1,7 +1,17 @@
 import axios from 'axios';
 
+// Resolve backend API URL from environment variables, falling back to local dev URL
+const rawBaseURL =
+  import.meta.env.VITE_API_BASE_URL ||
+  import.meta.env.VITE_API_URL ||
+  'http://localhost:5000/api/v1';
+
+// Ensure no trailing slash, and automatically append /api/v1 if not present
+const cleanURL = rawBaseURL.replace(/\/+$/, '');
+const normalizedBaseURL = cleanURL.endsWith('/api/v1') ? cleanURL : `${cleanURL}/api/v1`;
+
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1',
+  baseURL: normalizedBaseURL,
   headers: {
     'Content-Type': 'application/json',
   },

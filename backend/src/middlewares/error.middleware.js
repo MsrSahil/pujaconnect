@@ -44,6 +44,16 @@ const errorHandler = (err, _req, res, _next) => {
     message = 'Token has expired';
   }
 
+  // Always log unexpected internal errors (500+) to server console
+  if (statusCode >= 500) {
+    console.error('💥 [Unhandled Server Error]:', err);
+  }
+
+  // In production, mask detailed 500-level messages to prevent leaking stack or file system details
+  if (ENV.NODE_ENV === 'production' && statusCode >= 500) {
+    message = 'Internal server error';
+  }
+
   res.status(statusCode).json({
     success: false,
     message,

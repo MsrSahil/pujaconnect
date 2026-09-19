@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import mongoSanitize from 'express-mongo-sanitize';
 import { ENV } from './config/env.js';
 import errorHandler from './middlewares/error.middleware.js';
 
@@ -13,14 +15,36 @@ import userRoutes from './routes/user.routes.js';
 
 const app = express();
 
+// ── Security Headers ──
+app.use(helmet());
+
 // ── Body parsers ──
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// ── NoSQL Injection Sanitization ──
+// Strips $ and . characters from user-supplied input in body, query, and params
+app.use(mongoSanitize());
+
 // ── CORS ──
+// Support comma-separated origins (e.g. "http://localhost:5173,https://pujaconnect.vercel.app")
+const allowedOrigins = (ENV.CLIENT_URL || 'http://localhost:5173')
+  .split(',')
+  .map((url) => url.trim().replace(/\/+$/, ''))
+  .filter(Boolean);
+
 app.use(
   cors({
-    origin: ENV.CLIENT_URL,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, uptime monitors, server-to-server)
+      if (!origin) return callback(null, true);
+
+      const normalizedOrigin = origin.replace(/\/+$/, '');
+      if (allowedOrigins.includes(normalizedOrigin) || allowedOrigins.includes('*')) {
+        return callback(null, true);
+      }
+      return callback(new Error(`CORS blocked access from origin: ${origin}`));
+    },
     credentials: true,
   })
 );
