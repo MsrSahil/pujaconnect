@@ -3,8 +3,8 @@ import { ENV } from './env.js';
 
 const connectDB = async () => {
   try {
-    // Enable Mongoose sanitizeFilter to prevent NoSQL query selector injection
-    mongoose.set('sanitizeFilter', true);
+    // Removed mongoose.set('sanitizeFilter', true) because it conflicts with backend queries.
+    // NoSQL injection is already handled by express-mongo-sanitize in app.js
 
     const conn = await mongoose.connect(ENV.MONGO_URI);
     console.log(`✅ MongoDB connected: ${conn.connection.host}`);
