@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
+import morgan from 'morgan';
 import { ENV } from './config/env.js';
 import errorHandler from './middlewares/error.middleware.js';
 
@@ -14,6 +15,11 @@ import adminRoutes from './routes/admin.routes.js';
 import userRoutes from './routes/user.routes.js';
 
 const app = express();
+
+// ── Logger ──
+if (ENV.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
 // ── Security Headers ──
 app.use(helmet());
